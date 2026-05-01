@@ -1,6 +1,6 @@
 # Yahoo Mail MCP Server
 
-A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo Mail via IMAP and SMTP. This server allows tools like Claude Desktop to read, search, and send emails directly through your Yahoo account.
+A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo Mail. This server allows tools like Claude Desktop to read, search, and send emails directly through your Yahoo account using secure OAuth2 authentication.
 
 ## Features (Planned)
 
@@ -10,8 +10,16 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 
 ## Prerequisites
 
-- **Node.js**: Version 18 or higher.
-- **Yahoo App Password**: Yahoo requires an [App Password](https://help.yahoo.com/kb/SLN15241.html) for third-party applications to access your mail. Standard account passwords will not work.
+- **Node.js**: Version 20 or higher.
+- **Yahoo Developer App**: You must create an app in the [Yahoo Developer Portal](https://developer.yahoo.com/apps/) to obtain OAuth2 credentials.
+
+### Creating a Yahoo App for OAuth2
+
+1. Go to the [Yahoo Developer Portal](https://developer.yahoo.com/apps/).
+2. Create a new app.
+3. Set the **API Permissions** to include `Mail` (Read and Write).
+4. Set the **Redirect URI** to `https://localhost/callback` (or your preferred URI).
+5. Note your **Client ID** and **Client Secret**.
 
 ## Setup
 
@@ -30,8 +38,19 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
    Create a `.env` file in the root directory and add your Yahoo credentials:
    ```env
    YAHOO_EMAIL=your-email@yahoo.com
-   YAHOO_APP_PASSWORD=your-app-password
+   YAHOO_CLIENT_ID=your-client-id
+   YAHOO_CLIENT_SECRET=your-client-secret
+   YAHOO_REDIRECT_URI=https://localhost/callback
    ```
+
+## Authentication
+
+The first time you run the server, it will trigger an OAuth2 flow:
+1. A browser window will open asking you to log in to Yahoo.
+2. After authorizing, you will be redirected to your `REDIRECT_URI`.
+3. The page might fail to load, but that's fine—**copy the `code` parameter from the address bar**.
+4. Paste the code back into your terminal.
+5. The server will exchange the code for tokens and save them securely in `.tokens.json`.
 
 ## Usage
 
@@ -47,13 +66,7 @@ To build the project for production:
 npm run build
 ```
 
-### Production
-To start the built server:
-```bash
-npm start
-```
-
-## Integration with Claude Desktop
+### Integration with Claude Desktop
 
 To use this server with Claude Desktop, add it to your `claude_desktop_config.json`:
 
@@ -62,11 +75,7 @@ To use this server with Claude Desktop, add it to your `claude_desktop_config.js
   "mcpServers": {
     "yahoo-mail": {
       "command": "node",
-      "args": ["/path/to/yahoo-mail-mcp/dist/index.js"],
-      "env": {
-        "YAHOO_EMAIL": "your-email@yahoo.com",
-        "YAHOO_APP_PASSWORD": "your-app-password"
-      }
+      "args": ["/path/to/yahoo-mail-mcp/dist/index.js"]
     }
   }
 }
@@ -76,6 +85,7 @@ To use this server with Claude Desktop, add it to your `claude_desktop_config.js
 
 - `src/index.ts`: Entry point for the MCP server.
 - `src/server.ts`: MCP server initialization and tool registration.
+- `src/auth/`: OAuth2 flow and token management.
 - `src/tools/`: Implementation of individual email tools.
 - `src/lib/`: Helper libraries for IMAP and SMTP connections.
 
