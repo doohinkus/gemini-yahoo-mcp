@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "yahoo-mail": {
+      "command": "node",
+      "args": [
+        "/Users/valenlongfeather/Documents/yahoo-mail-mcp/dist/index.js"
+      ]
+    }
+  }
+}

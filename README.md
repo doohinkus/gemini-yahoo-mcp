@@ -1,8 +1,8 @@
 # Yahoo Mail MCP Server
 
-A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo Mail. This server allows tools like Claude Desktop to read, search, and send emails directly through your Yahoo account using secure OAuth2 authentication.
+A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo Mail. This server allows tools like Gemini CLI or Claude Desktop to read, search, and send emails directly through your Yahoo account.
 
-## Features (Planned)
+## Features
 
 - **Read Emails**: Fetch recent messages from your inbox.
 - **Search Emails**: Search for specific messages using keywords, senders, or dates.
@@ -11,15 +11,14 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 ## Prerequisites
 
 - **Node.js**: Version 20 or higher.
-- **Yahoo Developer App**: You must create an app in the [Yahoo Developer Portal](https://developer.yahoo.com/apps/) to obtain OAuth2 credentials.
+- **Yahoo App Password**: For security and ease of use, this server uses Yahoo App Passwords instead of traditional OAuth2 for personal integrations.
 
-### Creating a Yahoo App for OAuth2
+### Generating a Yahoo App Password
 
-1. Go to the [Yahoo Developer Portal](https://developer.yahoo.com/apps/).
-2. Create a new app.
-3. Set the **API Permissions** to include `Mail` (Read and Write).
-4. Set the **Redirect URI** to `https://localhost/callback` (or your preferred URI).
-5. Note your **Client ID** and **Client Secret**.
+1. Go to your [Yahoo Account Security](https://login.yahoo.com/account/security) page.
+2. Select **Generate app password**.
+3. Choose **Other App** and name it "Gemini CLI" (or any name you prefer).
+4. Copy the **16-character password** provided.
 
 ## Setup
 
@@ -35,40 +34,51 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
    ```
 
 3. **Configure Environment Variables:**
-   Create a `.env` file in the root directory and add your Yahoo credentials:
+   Create a `.env` file in the root directory:
    ```env
    YAHOO_EMAIL=your-email@yahoo.com
-   YAHOO_CLIENT_ID=your-client-id
-   YAHOO_CLIENT_SECRET=your-client-secret
-   YAHOO_REDIRECT_URI=https://localhost/callback
+   YAHOO_APP_PASSWORD=your-16-character-app-password
    ```
 
-## Authentication
+4. **Build the project:**
+   ```bash
+   npm run build
+   ```
 
-The first time you run the server, it will trigger an OAuth2 flow:
-1. A browser window will open asking you to log in to Yahoo.
-2. After authorizing, you will be redirected to your `REDIRECT_URI`.
-3. The page might fail to load, but that's fine—**copy the `code` parameter from the address bar**.
-4. Paste the code back into your terminal.
-5. The server will exchange the code for tokens and save them securely in `.tokens.json`.
+## Integration with Gemini CLI
 
-## Usage
+### 1. Register the Server
+Add the server to your Gemini CLI configuration using the `mcp add` command:
 
-### Development
-To run the server in development mode with `vite-node`:
 ```bash
-npm run dev
+gemini mcp add yahoo-mail node $(pwd)/dist/index.js
 ```
 
-### Build
-To build the project for production:
-```bash
-npm run build
+### 2. Reload Tools
+Inside a Gemini CLI session, reload the tools to make the Yahoo Mail tools available:
+```
+/mcp reload
 ```
 
-### Integration with Claude Desktop
+## Example Usage
 
-To use this server with Claude Desktop, add it to your `claude_desktop_config.json`:
+Once registered, you can use natural language to interact with your mail.
+
+### Reading Emails
+**You:** "Show me my 5 most recent emails from Yahoo."
+**Gemini:** *Fetches and displays the subject lines, senders, and snippets of your latest 5 messages.*
+
+### Searching Emails
+**You:** "Find any emails from 'Amazon' about my recent order."
+**Gemini:** *Searches your inbox for 'Amazon' and returns matching results.*
+
+### Sending Emails
+**You:** "Send an email to rafaeliscoding@yahoo.com with the subject 'Hello' and the body 'Checking in from my CLI!'"
+**Gemini:** *Composes and sends the email through Yahoo's SMTP server.*
+
+## Integration with Claude Desktop
+
+Add the server to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -85,9 +95,8 @@ To use this server with Claude Desktop, add it to your `claude_desktop_config.js
 
 - `src/index.ts`: Entry point for the MCP server.
 - `src/server.ts`: MCP server initialization and tool registration.
-- `src/auth/`: OAuth2 flow and token management.
-- `src/tools/`: Implementation of individual email tools.
-- `src/lib/`: Helper libraries for IMAP and SMTP connections.
+- `src/tools/`: Implementation of `read_emails`, `search_emails`, and `send_email`.
+- `src/lib/`: IMAP and SMTP connection helpers.
 
 ## License
 
