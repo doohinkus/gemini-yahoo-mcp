@@ -26,18 +26,21 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 ### Local Development
 
 1. **Clone the repository:**
+
    ```bash
    git clone <repository-url>
    cd yahoo-mail-mcp
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Configure Environment Variables:**
    Create a `.env` file in the root directory:
+
    ```env
    YAHOO_EMAIL=your-email@yahoo.com
    YAHOO_APP_PASSWORD=your-16-character-app-password
@@ -54,6 +57,7 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 Build and run the server using Docker to ensure a consistent environment:
 
 1. **Build the image:**
+
    ```bash
    docker build -t yahoo-mail-mcp .
    ```
@@ -74,11 +78,13 @@ Build and run the server using Docker to ensure a consistent environment:
 ## Integration with Gemini CLI
 
 ### 1. Register the Server (Local)
+
 ```bash
 gemini mcp add yahoo-mail node $(pwd)/dist/index.js
 ```
 
 ### 2. Register the Server (Docker)
+
 ```bash
 gemini mcp add yahoo-mail-docker docker -- run -i --rm --env-file $(pwd)/.env yahoo-mail-mcp
 ```
@@ -88,13 +94,16 @@ gemini mcp add yahoo-mail-docker docker -- run -i --rm --env-file $(pwd)/.env ya
 Once registered, you can use natural language to interact with your mail.
 
 ### Reading Emails
+
 **You:** "Show me my 5 most recent emails from Yahoo."
 
 ### Searching Emails
+
 **You:** "Find any emails from 'Amazon' about my recent order."
 
 ### Sending Emails
-**You:** "Send an email to rafaeliscoding@yahoo.com with the subject 'Hello' and the body 'Checking in from my CLI!'"
+
+**You:** "Send an email to <your-email>@yahoo.com with the subject 'Hello' and the body 'Checking in from my CLI!'"
 
 ## Project Structure
 
@@ -102,10 +111,10 @@ Once registered, you can use natural language to interact with your mail.
 - `src/server.ts`: MCP server initialization and tool registration.
 - `src/tools/`: Implementation of `read_emails`, `search_emails`, and `send_email`.
 - `src/lib/`:
-    - `imap.ts`: IMAP connection helper.
-    - `smtp.ts`: SMTP connection helper.
-    - `logger.ts`: Winston-based structured logging.
-    - `config.ts`: Zod-based environment validation.
+  - `imap.ts`: IMAP connection helper.
+  - `smtp.ts`: SMTP connection helper.
+  - `logger.ts`: Winston-based structured logging.
+  - `config.ts`: Zod-based environment validation.
 
 ## License
 
