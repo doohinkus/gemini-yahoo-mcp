@@ -5,6 +5,7 @@ import { searchEmails } from "./tools/searchEmails.js";
 import { sendEmail } from "./tools/sendEmail.js";
 import { readEmailContent } from "./tools/readEmailContent.js";
 import { getCoupons } from "./tools/getCoupons.js";
+import logger from "./lib/logger.js";
 
 export const server = new McpServer({
   name: "yahoo-mail-mcp",
@@ -19,10 +20,16 @@ server.tool(
     count: z.number().optional().default(10).describe("Number of emails to fetch"),
   },
   async ({ count }) => {
-    const emails = await readEmails(count);
-    return {
-      content: [{ type: "text", text: JSON.stringify(emails, null, 2) }],
-    };
+    logger.info("Fetching recent emails", { count });
+    try {
+      const emails = await readEmails(count);
+      return {
+        content: [{ type: "text", text: JSON.stringify(emails, null, 2) }],
+      };
+    } catch (error) {
+      logger.error("Error reading emails", { error });
+      throw error;
+    }
   }
 );
 
@@ -34,10 +41,16 @@ server.tool(
     uid: z.number().describe("The UID of the email to fetch"),
   },
   async ({ uid }) => {
-    const email = await readEmailContent(uid);
-    return {
-      content: [{ type: "text", text: JSON.stringify(email, null, 2) }],
-    };
+    logger.info("Fetching email content", { uid });
+    try {
+      const email = await readEmailContent(uid);
+      return {
+        content: [{ type: "text", text: JSON.stringify(email, null, 2) }],
+      };
+    } catch (error) {
+      logger.error("Error reading email content", { uid, error });
+      throw error;
+    }
   }
 );
 
@@ -49,10 +62,16 @@ server.tool(
     limit: z.number().optional().default(5).describe("Maximum number of emails to scan"),
   },
   async ({ limit }) => {
-    const coupons = await getCoupons(limit);
-    return {
-      content: [{ type: "text", text: JSON.stringify(coupons, null, 2) }],
-    };
+    logger.info("Searching for coupons", { limit });
+    try {
+      const coupons = await getCoupons(limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(coupons, null, 2) }],
+      };
+    } catch (error) {
+      logger.error("Error getting coupons", { error });
+      throw error;
+    }
   }
 );
 
@@ -68,10 +87,16 @@ server.tool(
     limit: z.number().optional().default(10).describe("Maximum number of results to return"),
   },
   async (args) => {
-    const emails = await searchEmails(args);
-    return {
-      content: [{ type: "text", text: JSON.stringify(emails, null, 2) }],
-    };
+    logger.info("Searching emails", args);
+    try {
+      const emails = await searchEmails(args);
+      return {
+        content: [{ type: "text", text: JSON.stringify(emails, null, 2) }],
+      };
+    } catch (error) {
+      logger.error("Error searching emails", { args, error });
+      throw error;
+    }
   }
 );
 
@@ -85,9 +110,15 @@ server.tool(
     body: z.string().describe("Email body content"),
   },
   async (args) => {
-    const result = await sendEmail(args);
-    return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-    };
+    logger.info("Sending email", { to: args.to, subject: args.subject });
+    try {
+      const result = await sendEmail(args);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      logger.error("Error sending email", { to: args.to, error });
+      throw error;
+    }
   }
 );

@@ -1,23 +1,17 @@
-import imaps from 'imap-simple';
-import dotenv from 'dotenv';
+import imaps from "imap-simple";
+import { config as appConfig } from "./config.js";
+import logger from "./logger.js";
 
-dotenv.config();
-
-const YAHOO_IMAP_HOST = 'imap.mail.yahoo.com';
+const YAHOO_IMAP_HOST = "imap.mail.yahoo.com";
 const YAHOO_IMAP_PORT = 993;
 
 export const connectIMAP = async (): Promise<imaps.ImapSimple> => {
-  const email = process.env.YAHOO_EMAIL;
-  const password = process.env.YAHOO_APP_PASSWORD;
+  const email = appConfig.YAHOO_EMAIL;
+  const password = appConfig.YAHOO_APP_PASSWORD;
 
-  console.log('Connecting with Email:', email);
-  console.log('Password length:', password?.length);
+  logger.debug("Connecting to IMAP", { email });
 
-  if (!email || !password) {
-    throw new Error('YAHOO_EMAIL and YAHOO_APP_PASSWORD environment variables must be set');
-  }
-
-  const config = {
+  const imapConfig = {
     imap: {
       user: email,
       password: password,
@@ -29,10 +23,10 @@ export const connectIMAP = async (): Promise<imaps.ImapSimple> => {
   };
 
   try {
-    const connection = await imaps.connect(config);
+    const connection = await imaps.connect(imapConfig);
     return connection;
   } catch (error) {
-    console.error('IMAP Connection Error:', error);
+    logger.error("IMAP Connection Error", { error });
     throw error;
   }
 };

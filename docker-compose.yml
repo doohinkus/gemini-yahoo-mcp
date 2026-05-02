@@ -1,0 +1,11 @@
+services:
+  yahoo-mail-mcp:
+    build: .
+    env_file:
+      - .env
+    # Since it's a stdio-based MCP server, running it in compose 
+    # might be more for testing the build than for actual usage
+    # unless it's integrated with a client that connects via TCP/SSE.
+    # For stdio, users typically run the image directly via their MCP client.
+    stdin_open: true
+    tty: true

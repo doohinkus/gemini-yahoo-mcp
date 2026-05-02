@@ -5,6 +5,15 @@
       "args": [
         "/Users/valenlongfeather/Documents/yahoo-mail-mcp/dist/index.js"
       ]
+    },
+    "yahoo-mail-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--env-file"
+      ]
     }
   }
 }

@@ -1,18 +1,15 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import { config as appConfig } from "./config.js";
+import logger from "./logger.js";
 
-dotenv.config();
-
-const YAHOO_SMTP_HOST = 'smtp.mail.yahoo.com';
+const YAHOO_SMTP_HOST = "smtp.mail.yahoo.com";
 const YAHOO_SMTP_PORT = 465;
 
 export const connectSMTP = async () => {
-  const email = process.env.YAHOO_EMAIL;
-  const password = process.env.YAHOO_APP_PASSWORD;
+  const email = appConfig.YAHOO_EMAIL;
+  const password = appConfig.YAHOO_APP_PASSWORD;
 
-  if (!email || !password) {
-    throw new Error('YAHOO_EMAIL and YAHOO_APP_PASSWORD must be set');
-  }
+  logger.debug("Connecting to SMTP", { email });
 
   const transporter = nodemailer.createTransport({
     host: YAHOO_SMTP_HOST,

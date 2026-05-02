@@ -7,10 +7,11 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 - **Read Emails**: Fetch recent messages from your inbox.
 - **Search Emails**: Search for specific messages using keywords, senders, or dates.
 - **Send Emails**: Compose and send emails using Yahoo's SMTP servers.
+- **Production Ready**: Includes Docker support, structured logging, environment validation, and automated tests.
 
 ## Prerequisites
 
-- **Node.js**: Version 20 or higher.
+- **Node.js**: Version 20 or higher (or Docker).
 - **Yahoo App Password**: For security and ease of use, this server uses Yahoo App Passwords instead of traditional OAuth2 for personal integrations.
 
 ### Generating a Yahoo App Password
@@ -21,6 +22,8 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
 4. Copy the **16-character password** provided.
 
 ## Setup
+
+### Local Development
 
 1. **Clone the repository:**
    ```bash
@@ -38,6 +41,7 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
    ```env
    YAHOO_EMAIL=your-email@yahoo.com
    YAHOO_APP_PASSWORD=your-16-character-app-password
+   LOG_LEVEL=info
    ```
 
 4. **Build the project:**
@@ -45,19 +49,38 @@ A Model Context Protocol (MCP) server that enables LLMs to interact with Yahoo M
    npm run build
    ```
 
+### Docker Setup (Recommended for Production)
+
+Build and run the server using Docker to ensure a consistent environment:
+
+1. **Build the image:**
+   ```bash
+   docker build -t yahoo-mail-mcp .
+   ```
+
+2. **Run the container (for testing build):**
+   ```bash
+   docker run --env-file .env yahoo-mail-mcp
+   ```
+
+## Development Commands
+
+- `npm run dev`: Start the server in development mode.
+- `npm run lint`: Lint the codebase using ESLint.
+- `npm run format`: Format the codebase using Prettier.
+- `npm run test`: Run the test suite using Vitest.
+- `npm run build`: Build the project for production.
+
 ## Integration with Gemini CLI
 
-### 1. Register the Server
-Add the server to your Gemini CLI configuration using the `mcp add` command:
-
+### 1. Register the Server (Local)
 ```bash
 gemini mcp add yahoo-mail node $(pwd)/dist/index.js
 ```
 
-### 2. Reload Tools
-Inside a Gemini CLI session, reload the tools to make the Yahoo Mail tools available:
-```
-/mcp reload
+### 2. Register the Server (Docker)
+```bash
+gemini mcp add yahoo-mail-docker docker -- run -i --rm --env-file $(pwd)/.env yahoo-mail-mcp
 ```
 
 ## Example Usage
@@ -66,37 +89,23 @@ Once registered, you can use natural language to interact with your mail.
 
 ### Reading Emails
 **You:** "Show me my 5 most recent emails from Yahoo."
-**Gemini:** *Fetches and displays the subject lines, senders, and snippets of your latest 5 messages.*
 
 ### Searching Emails
 **You:** "Find any emails from 'Amazon' about my recent order."
-**Gemini:** *Searches your inbox for 'Amazon' and returns matching results.*
 
 ### Sending Emails
 **You:** "Send an email to rafaeliscoding@yahoo.com with the subject 'Hello' and the body 'Checking in from my CLI!'"
-**Gemini:** *Composes and sends the email through Yahoo's SMTP server.*
-
-## Integration with Claude Desktop
-
-Add the server to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "yahoo-mail": {
-      "command": "node",
-      "args": ["/path/to/yahoo-mail-mcp/dist/index.js"]
-    }
-  }
-}
-```
 
 ## Project Structure
 
 - `src/index.ts`: Entry point for the MCP server.
 - `src/server.ts`: MCP server initialization and tool registration.
 - `src/tools/`: Implementation of `read_emails`, `search_emails`, and `send_email`.
-- `src/lib/`: IMAP and SMTP connection helpers.
+- `src/lib/`:
+    - `imap.ts`: IMAP connection helper.
+    - `smtp.ts`: SMTP connection helper.
+    - `logger.ts`: Winston-based structured logging.
+    - `config.ts`: Zod-based environment validation.
 
 ## License
 
