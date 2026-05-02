@@ -3,6 +3,8 @@ import { z } from "zod";
 import { readEmails } from "./tools/readEmails.js";
 import { searchEmails } from "./tools/searchEmails.js";
 import { sendEmail } from "./tools/sendEmail.js";
+import { readEmailContent } from "./tools/readEmailContent.js";
+import { getCoupons } from "./tools/getCoupons.js";
 
 export const server = new McpServer({
   name: "yahoo-mail-mcp",
@@ -20,6 +22,36 @@ server.tool(
     const emails = await readEmails(count);
     return {
       content: [{ type: "text", text: JSON.stringify(emails, null, 2) }],
+    };
+  }
+);
+
+// Register read_email_content tool
+server.tool(
+  "read_email_content",
+  "Fetch the full content of a specific email by UID",
+  {
+    uid: z.number().describe("The UID of the email to fetch"),
+  },
+  async ({ uid }) => {
+    const email = await readEmailContent(uid);
+    return {
+      content: [{ type: "text", text: JSON.stringify(email, null, 2) }],
+    };
+  }
+);
+
+// Register get_coupons tool
+server.tool(
+  "get_coupons",
+  "Search for coupon-related emails and extract potential promo codes",
+  {
+    limit: z.number().optional().default(5).describe("Maximum number of emails to scan"),
+  },
+  async ({ limit }) => {
+    const coupons = await getCoupons(limit);
+    return {
+      content: [{ type: "text", text: JSON.stringify(coupons, null, 2) }],
     };
   }
 );
